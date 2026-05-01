@@ -1,0 +1,52 @@
+name = "blocklotcms"
+main = "src/index.ts"
+compatibility_date = "2025-04-30"
+compatibility_flags = ["nodejs_compat"]
+
+# ── Workers ──────────────────────────────────────────────────────────────────
+[placement]
+mode = "smart"   # route requests to the nearest data-centre
+
+# ── KV namespaces ────────────────────────────────────────────────────────────
+# Stores serialised block & template definitions.
+[[kv_namespaces]]
+binding  = "BLOCKS_KV"
+id       = "REPLACE_WITH_YOUR_KV_ID"               # `wrangler kv namespace create BLOCKS_KV`
+preview_id = "REPLACE_WITH_YOUR_PREVIEW_KV_ID"
+
+# ── D1 Database ──────────────────────────────────────────────────────────────
+# Relational store: listings, saved searches, builder pages.
+[[d1_databases]]
+binding        = "DB"
+database_name  = "blocklotcms-db"
+database_id    = "REPLACE_WITH_YOUR_D1_ID"         # `wrangler d1 create blocklotcms-db`
+migrations_dir = "schema"
+
+# ── R2 Bucket ────────────────────────────────────────────────────────────────
+# Object storage: listing photos, flyer PDFs, brand assets.
+[[r2_buckets]]
+binding     = "MEDIA_BUCKET"
+bucket_name = "blocklotcms-media"                  # `wrangler r2 bucket create blocklotcms-media`
+
+# ── Environment variables ─────────────────────────────────────────────────────
+# Copy these to .dev.vars for local development (never commit .dev.vars).
+[vars]
+# RESO / MLS API base URL (e.g. https://api.yourmlsprovider.com/reso/odata)
+RESO_API_BASE_URL = "https://api.yourmlsprovider.com/reso/odata"
+# Set RESO_API_KEY in .dev.vars or via `wrangler secret put RESO_API_KEY`
+
+# Allowed origin(s) for CORS – comma-separated for multiple domains
+ALLOWED_ORIGINS = "*"
+
+# ── Secrets (set via `wrangler secret put <NAME>`) ────────────────────────────
+# RESO_API_KEY          – Bearer token / API key for your RESO data provider
+# RESO_CLIENT_ID        – OAuth2 client ID (if your provider uses OAuth2)
+# RESO_CLIENT_SECRET    – OAuth2 client secret
+# SESSION_SECRET        – Secret used to sign session tokens
+
+# ── Dev / Preview overrides ───────────────────────────────────────────────────
+[env.preview]
+vars = { ALLOWED_ORIGINS = "*" }
+
+[env.production]
+vars = { ALLOWED_ORIGINS = "https://yourdomain.com" }
