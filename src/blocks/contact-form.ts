@@ -35,6 +35,9 @@ const definition: BlockDefinition = {
     const showSchedule = config["showScheduleShowing"] !== false;
     const showEHO = config["equalHousingDisclaimer"] !== false;
     const successMsg = String(config["successMessage"] ?? "Thank you!");
+    // Escape for safe embedding inside a JS single-quoted string literal:
+    // Must escape backslashes first, then single quotes.
+    const safeSuccessMsg = successMsg.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
     const formId = `blk-contact-${Math.random().toString(36).slice(2, 8)}`;
 
     return /* html */`
@@ -123,7 +126,7 @@ const definition: BlockDefinition = {
       .then(function(r){return r.json()})
       .then(function(){
         status.style.color='#065f46';
-        status.textContent='${successMsg.replace(/'/g,"\\'")}';
+        status.textContent='${safeSuccessMsg}';
         form.reset();
       })
       .catch(function(){

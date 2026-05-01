@@ -16,6 +16,22 @@ interface LeadPayload {
   consent?: boolean | string;
 }
 
+/**
+ * Validate an email address using linear-time string operations only.
+ * Avoids regex on user-controlled input to eliminate any ReDoS risk.
+ */
+function isValidEmail(email: string): boolean {
+  // Must not contain whitespace
+  if (/\s/.test(email)) return false;
+  const at = email.indexOf("@");
+  // Must have exactly one '@' with non-empty local part
+  if (at <= 0 || at !== email.lastIndexOf("@")) return false;
+  const domain = email.slice(at + 1);
+  // Domain must be non-empty and contain a '.' that is not first or last
+  const dot = domain.lastIndexOf(".");
+  return dot > 0 && dot < domain.length - 1;
+}
+
 // ── POST /api/contact ────────────────────────────────────────────────────────
 export async function submitContact(req: Request, env: Env): Promise<Response> {
   let body: LeadPayload;
@@ -29,8 +45,9 @@ export async function submitContact(req: Request, env: Env): Promise<Response> {
   if (!body.firstName) return errorResponse("'firstName' is required");
   if (!body.lastName) return errorResponse("'lastName' is required");
 
-  // Basic email sanity check (not a full RFC validation, just a quick guard)
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
+  // Basic email sanity check using linear-time string operations (no regex)
+  // to avoid any ReDoS risk with user-controlled input.
+  if (!isValidEmail(body.email)) {
     return errorResponse("Invalid email address");
   }
 
