@@ -35,9 +35,15 @@ const definition: BlockDefinition = {
     const showSchedule = config["showScheduleShowing"] !== false;
     const showEHO = config["equalHousingDisclaimer"] !== false;
     const successMsg = String(config["successMessage"] ?? "Thank you!");
-    // Escape for safe embedding inside a JS single-quoted string literal:
-    // Must escape backslashes first, then single quotes.
-    const safeSuccessMsg = successMsg.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    // Escape for safe embedding inside a JS single-quoted string literal.
+    // Order: backslashes first, then other special characters.
+    const safeSuccessMsg = successMsg
+      .replace(/\\/g, "\\\\")   // \ → \\
+      .replace(/'/g, "\\'")     // ' → \'
+      .replace(/\r/g, "\\r")    // CR
+      .replace(/\n/g, "\\n")    // LF
+      .replace(/\u2028/g, "\\u2028")  // line separator
+      .replace(/\u2029/g, "\\u2029"); // paragraph separator
     const formId = `blk-contact-${Math.random().toString(36).slice(2, 8)}`;
 
     return /* html */`
