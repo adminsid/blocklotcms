@@ -1,0 +1,8 @@
+# ── Local development secrets ─────────────────────────────────────────────────
+# Copy this file to .dev.vars and fill in your real values.
+# .dev.vars is listed in .gitignore and must NEVER be committed.
+
+RESO_API_KEY=your-reso-api-key-here
+RESO_CLIENT_ID=your-oauth-client-id
+RESO_CLIENT_SECRET=your-oauth-client-secret
+SESSION_SECRET=a-long-random-secret-string
